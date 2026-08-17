@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Database, Globe, Moon, Building, Bug, ChevronLeft, ChevronRight, Search, Loader2 } from 'lucide-react';
+import { Database, Globe, Moon, Building, Bug, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 
 const categories = [
     { id: 'systems', label: 'Star Systems', icon: Database },
@@ -7,7 +7,19 @@ const categories = [
     { id: 'moons', label: 'Moons', icon: Moon },
     { id: 'settlements', label: 'Settlements', icon: Building },
     { id: 'species', label: 'Flora & Fauna', icon: Bug },
+    { id: 'factions', label: 'Factions', icon: Database }
 ];
+
+// --- COLUMN CONFIGURATION ---
+// Define exactly which keys you want to display for each category, and in what order.
+// Use the exact property names returned by your Express API (which likely match your Postgres columns).
+const categoryColumns = {
+    systems: ['name', 'temperature', 'description', 'faction_id'],
+    planets: ['id', 'system_id', 'name', 'type', 'atmosphere', 'temperature'],
+    moons: ['id', 'planet_id', 'name', 'type', 'radius'],
+    settlements: ['id', 'planet_id', 'name', 'population', 'faction'],
+    species: ['id', 'name', 'diet', 'aggression_level']
+};
 
 const GalacticCatalog = () => {
     const [activeCategory, setActiveCategory] = useState('systems');
@@ -42,7 +54,6 @@ const GalacticCatalog = () => {
         }
     };
 
-    // Re-fetch when category or page changes
     useEffect(() => {
         fetchData(activeCategory, 1);
     }, [activeCategory]);
@@ -53,8 +64,13 @@ const GalacticCatalog = () => {
         }
     };
 
-    // Extract dynamic column headers based on the first row of data
-    const columns = data.length > 0 ? Object.keys(data[0]) : [];
+    // --- SMART COLUMN SELECTION ---
+    // 1. Check if the active category has a defined config.
+    // 2. If yes, use the config.
+    // 3. If no, fall back to auto-generating from the first row of data.
+    const columns = categoryColumns[activeCategory]
+        ? categoryColumns[activeCategory]
+        : (data.length > 0 ? Object.keys(data[0]) : []);
 
     return (
         <div className="flex flex-col h-screen bg-[#0a0a1a] text-green-400 font-mono">
@@ -113,7 +129,8 @@ const GalacticCatalog = () => {
                                 <tr>
                                     {columns.map((col) => (
                                         <th key={col} className="px-4 py-3 uppercase tracking-wider font-bold text-xs">
-                                            {col.replace(/_/g, ' ')}
+                                            {/* Formats snake_case and camelCase to readable headers */}
+                                            {col.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ').trim()}
                                         </th>
                                     ))}
                                 </tr>
@@ -122,6 +139,7 @@ const GalacticCatalog = () => {
                                 {data.map((row, rowIndex) => (
                                     <tr key={rowIndex} className="hover:bg-green-900/20 transition-colors">
                                         {columns.map((col) => {
+                                            // Safely fetch the value, even if it's deeply nested (optional chaining behavior)
                                             let cellValue = row[col];
 
                                             // Handle booleans, nulls, and objects so React doesn't crash
