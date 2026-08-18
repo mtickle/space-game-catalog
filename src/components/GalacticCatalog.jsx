@@ -14,7 +14,7 @@ const categories = [
 // Define exactly which keys you want to display for each category, and in what order.
 // Use the exact property names returned by your Express API (which likely match your Postgres columns).
 const categoryColumns = {
-    systems: ['name', 'temperature', 'description', 'faction_id'],
+    systems: ['name', 'temperature', 'description', 'faction_name', 'total_planets', 'total_moons', 'total_settlements'],
     planets: ['id', 'system_id', 'name', 'type', 'atmosphere', 'temperature'],
     moons: ['id', 'planet_id', 'name', 'type', 'radius'],
     settlements: ['id', 'planet_id', 'name', 'population', 'faction'],
@@ -148,7 +148,7 @@ const GalacticCatalog = () => {
                                             if (typeof cellValue === 'object') cellValue = JSON.stringify(cellValue);
 
                                             return (
-                                                <td key={`${rowIndex}-${col}`} className="px-4 py-3 max-w-[200px] truncate text-xs" title={String(cellValue)}>
+                                                <td key={`${rowIndex}-${col}`} className="px-4 py-3 max-w-[200px] truncate text-md" title={String(cellValue)}>
                                                     {String(cellValue)}
                                                 </td>
                                             );
