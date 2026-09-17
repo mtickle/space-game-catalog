@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Database, Globe, Moon, Building, Bug, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
+import { Database, Globe, Moon, Building, Bug, ChevronLeft, ChevronRight, Loader2, Info, X, Star, Map, AlignLeft, Flag } from 'lucide-react';
 
 const categories = [
     { id: 'systems', label: 'Star Systems', icon: Database },
@@ -10,12 +10,9 @@ const categories = [
     { id: 'factions', label: 'Factions', icon: Database }
 ];
 
-// --- COLUMN CONFIGURATION ---
-// Define exactly which keys you want to display for each category, and in what order.
-// Use the exact property names returned by your Express API (which likely match your Postgres columns).
 const categoryColumns = {
-    systems: ['name', 'temperature', 'description', 'faction_name', 'total_planets', 'total_moons', 'total_settlements'],
-    planets: ['id', 'system_id', 'name', 'type', 'atmosphere', 'temperature'],
+    systems: ['name', 'description', 'faction_name', 'total_planets', 'total_moons', 'total_settlements'],
+    planets: ['name', 'planet_type', 'weather', 'temperature', 'toxicity', 'radiation', 'economy_name', 'industry_name', 'atmosphere_makeup'],
     moons: ['id', 'planet_id', 'name', 'type', 'radius'],
     settlements: ['id', 'planet_id', 'name', 'population', 'faction'],
     species: ['id', 'name', 'diet', 'aggression_level']
@@ -26,6 +23,9 @@ const GalacticCatalog = () => {
     const [data, setData] = useState([]);
     const [meta, setMeta] = useState({ currentPage: 1, totalPages: 1, totalRecords: 0 });
     const [loading, setLoading] = useState(true);
+
+    // NEW: State to track the currently selected row for the modal
+    const [selectedRecord, setSelectedRecord] = useState(null);
 
     const fetchData = async (category, page = 1) => {
         setLoading(true);
@@ -56,6 +56,8 @@ const GalacticCatalog = () => {
 
     useEffect(() => {
         fetchData(activeCategory, 1);
+        // Reset the modal if the user changes tabs
+        setSelectedRecord(null);
     }, [activeCategory]);
 
     const handlePageChange = (newPage) => {
@@ -64,10 +66,31 @@ const GalacticCatalog = () => {
         }
     };
 
-    // --- SMART COLUMN SELECTION ---
-    // 1. Check if the active category has a defined config.
-    // 2. If yes, use the config.
-    // 3. If no, fall back to auto-generating from the first row of data.
+    // --- Helper Sub-Component for expandable sections ---
+    const InfoSection = ({ title, icon: Icon, children, defaultOpen = false }) => {
+        const [isOpen, setIsOpen] = useState(defaultOpen);
+
+        return (
+            <div className="mb-2 bg-black/20 rounded border border-cyan-900/30 overflow-hidden">
+                <button
+                    className="w-full flex items-center justify-between p-3 font-bold text-cyan-500 hover:text-cyan-300 hover:bg-cyan-900/20 transition-colors"
+                    onClick={() => setIsOpen(!isOpen)}
+                >
+                    <div className="flex items-center gap-2">
+                        <Icon size={16} />
+                        <span className="tracking-widest text-sm">{title}</span>
+                    </div>
+                    <span className="text-cyan-700">{isOpen ? '▼' : '▶'}</span>
+                </button>
+                {isOpen && (
+                    <div className="p-4 border-t border-cyan-900/30 text-sm text-gray-300 bg-black/40">
+                        {children}
+                    </div>
+                )}
+            </div>
+        );
+    };
+
     const columns = categoryColumns[activeCategory]
         ? categoryColumns[activeCategory]
         : (data.length > 0 ? Object.keys(data[0]) : []);
@@ -129,20 +152,20 @@ const GalacticCatalog = () => {
                                 <tr>
                                     {columns.map((col) => (
                                         <th key={col} className="px-4 py-3 uppercase tracking-wider font-bold text-xs">
-                                            {/* Formats snake_case and camelCase to readable headers */}
                                             {col.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ').trim()}
                                         </th>
                                     ))}
+                                    {/* NEW: Actions Column Header */}
+                                    <th className="px-4 py-3 uppercase tracking-wider font-bold text-xs text-right">
+                                        Actions
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-green-900/30 text-gray-300">
                                 {data.map((row, rowIndex) => (
                                     <tr key={rowIndex} className="hover:bg-green-900/20 transition-colors">
                                         {columns.map((col) => {
-                                            // Safely fetch the value, even if it's deeply nested (optional chaining behavior)
                                             let cellValue = row[col];
-
-                                            // Handle booleans, nulls, and objects so React doesn't crash
                                             if (typeof cellValue === 'boolean') cellValue = cellValue ? 'TRUE' : 'FALSE';
                                             if (cellValue === null || cellValue === undefined) cellValue = '—';
                                             if (typeof cellValue === 'object') cellValue = JSON.stringify(cellValue);
@@ -153,6 +176,15 @@ const GalacticCatalog = () => {
                                                 </td>
                                             );
                                         })}
+                                        {/* NEW: Details Button Cell */}
+                                        <td className="px-4 py-3 text-right">
+                                            <button
+                                                onClick={() => setSelectedRecord(row)}
+                                                className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-bold tracking-wider border border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/20 hover:border-cyan-400 rounded transition-all"
+                                            >
+                                                <Info size={14} /> DETAILS
+                                            </button>
+                                        </td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -184,6 +216,98 @@ const GalacticCatalog = () => {
                     </button>
                 </div>
             </div>
+
+            {/* NEW: DETAILS MODAL OVERLAY */}
+            {/* UPGRADED: DETAILS MODAL OVERLAY */}
+            {selectedRecord && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+                    <div className="bg-[#090914] border border-cyan-500/50 rounded-lg shadow-[0_0_40px_rgba(34,211,238,0.1)] w-full max-w-2xl max-h-[85vh] flex flex-col overflow-hidden">
+
+                        {/* Modal Header - Darker Bar with Icon */}
+                        <div className="flex justify-between items-start p-6 bg-gradient-to-r from-cyan-950/80 to-transparent border-b border-cyan-500/30">
+                            <div className="flex gap-4 items-center">
+                                <div className="p-3 bg-cyan-900/30 rounded-lg border border-cyan-500/30 text-cyan-400">
+                                    {activeCategory === 'systems' ? <Star size={28} /> : <Database size={28} />}
+                                </div>
+                                <div>
+                                    <h2 className="text-2xl font-bold tracking-widest text-white uppercase">
+                                        {selectedRecord.name || selectedRecord.planetName || 'UNKNOWN RECORD'}
+                                    </h2>
+                                    <p className="text-xs text-cyan-500 uppercase tracking-widest mt-1 flex items-center gap-2">
+                                        <Map size={12} /> ID: {selectedRecord.id || selectedRecord.starId}
+                                    </p>
+                                </div>
+                            </div>
+                            <button
+                                onClick={() => setSelectedRecord(null)}
+                                className="p-2 text-cyan-600 hover:text-cyan-400 hover:bg-cyan-900/50 rounded-full transition-colors"
+                            >
+                                <X size={24} />
+                            </button>
+                        </div>
+
+                        {/* Modal Body - Expandable Rows */}
+                        <div className="p-6 overflow-y-auto custom-scrollbar flex-1 bg-gradient-to-b from-transparent to-cyan-950/10">
+
+                            {activeCategory === 'systems' ? (
+                                <div className="space-y-1">
+                                    <InfoSection title="SYSTEM OVERVIEW" icon={AlignLeft} defaultOpen={true}>
+                                        <p className="italic text-cyan-100/70 leading-relaxed">
+                                            "{selectedRecord.description || 'No charting data available for this sector.'}"
+                                        </p>
+                                        <div className="mt-4 pt-4 border-t border-cyan-900/50 grid grid-cols-2 gap-4">
+                                            <div>
+                                                <span className="block text-xs text-cyan-600 mb-1 uppercase">Controlling Faction</span>
+                                                <span className="flex items-center gap-2 text-white">
+                                                    <Flag size={14} className="text-cyan-400" />
+                                                    {selectedRecord.faction_name || 'Uncharted'}
+                                                </span>
+                                            </div>
+                                            <div>
+                                                <span className="block text-xs text-cyan-600 mb-1 uppercase">Spectral Class</span>
+                                                <span className="text-white">{selectedRecord.spectral_class || 'Unknown'}</span>
+                                            </div>
+                                        </div>
+                                    </InfoSection>
+
+                                    <InfoSection title="ORBITAL BODIES" icon={Globe} defaultOpen={true}>
+                                        <div className="grid grid-cols-3 gap-4 text-center">
+                                            <div className="bg-black/50 p-3 rounded border border-cyan-900/30">
+                                                <Globe size={20} className="mx-auto mb-2 text-green-400" />
+                                                <div className="text-2xl font-bold text-white">{selectedRecord.total_planets || 0}</div>
+                                                <div className="text-[10px] text-cyan-600 uppercase mt-1">Planets</div>
+                                            </div>
+                                            <div className="bg-black/50 p-3 rounded border border-cyan-900/30">
+                                                <Moon size={20} className="mx-auto mb-2 text-gray-400" />
+                                                <div className="text-2xl font-bold text-white">{selectedRecord.total_moons || 0}</div>
+                                                <div className="text-[10px] text-cyan-600 uppercase mt-1">Moons</div>
+                                            </div>
+                                            <div className="bg-black/50 p-3 rounded border border-cyan-900/30">
+                                                <Building size={20} className="mx-auto mb-2 text-blue-400" />
+                                                <div className="text-2xl font-bold text-white">{selectedRecord.total_settlements || 0}</div>
+                                                <div className="text-[10px] text-cyan-600 uppercase mt-1">Settlements</div>
+                                            </div>
+                                        </div>
+                                    </InfoSection>
+
+                                    <InfoSection title="RAW TELEMETRY" icon={Database}>
+                                        <pre className="text-cyan-400/50 font-mono text-[10px] whitespace-pre-wrap leading-relaxed">
+                                            {JSON.stringify(selectedRecord, null, 2)}
+                                        </pre>
+                                    </InfoSection>
+                                </div>
+                            ) : (
+                                /* Fallback for non-system categories until you style them */
+                                <InfoSection title="RAW TELEMETRY" icon={Database} defaultOpen={true}>
+                                    <pre className="text-cyan-400/80 font-mono text-xs whitespace-pre-wrap leading-relaxed">
+                                        {JSON.stringify(selectedRecord, null, 2)}
+                                    </pre>
+                                </InfoSection>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
