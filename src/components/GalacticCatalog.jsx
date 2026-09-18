@@ -234,7 +234,7 @@ const GalacticCatalog = () => {
                                         {selectedRecord.name || selectedRecord.planetName || 'UNKNOWN RECORD'}
                                     </h2>
                                     <p className="text-xs text-cyan-500 uppercase tracking-widest mt-1 flex items-center gap-2">
-                                        <Map size={12} /> ID: {selectedRecord.id || selectedRecord.starId}
+                                        <Map size={12} /> ID: {selectedRecord.id || selectedRecord.star_id}
                                     </p>
                                 </div>
                             </div>
@@ -259,18 +259,29 @@ const GalacticCatalog = () => {
                                             <div>
                                                 <span className="block text-xs text-cyan-600 mb-1 uppercase">Controlling Faction</span>
                                                 <span className="flex items-center gap-2 text-white">
-                                                    <Flag size={14} className="text-cyan-400" />
                                                     {selectedRecord.faction_name || 'Uncharted'}
                                                 </span>
                                             </div>
                                             <div>
-                                                <span className="block text-xs text-cyan-600 mb-1 uppercase">Spectral Class</span>
-                                                <span className="text-white">{selectedRecord.spectral_class || 'Unknown'}</span>
+                                                <span className="block text-xs text-cyan-600 mb-1 uppercase">Temperature</span>
+                                                <span className="text-white">{selectedRecord.temperature || 'Unknown'}</span>
+                                            </div>
+                                        </div>
+                                        <div className="mt-4 pt-4 border-t border-cyan-900/50 grid grid-cols-2 gap-4">
+                                            <div>
+                                                <span className="block text-xs text-cyan-600 mb-1 uppercase">Station Name</span>
+                                                <span className="flex items-center gap-2 text-white">
+                                                    {selectedRecord.station_name || 'Uncharted'}
+                                                </span>
+                                            </div>
+                                            <div>
+                                                <span className="block text-xs text-cyan-600 mb-1 uppercase">Station Type</span>
+                                                <span className="text-white">{selectedRecord.station_type || 'Unknown'}</span>
                                             </div>
                                         </div>
                                     </InfoSection>
 
-                                    <InfoSection title="ORBITAL BODIES" icon={Globe} defaultOpen={true}>
+                                    <InfoSection title="IN THIS SYSTEM" icon={Globe} defaultOpen={true}>
                                         <div className="grid grid-cols-3 gap-4 text-center">
                                             <div className="bg-black/50 p-3 rounded border border-cyan-900/30">
                                                 <Globe size={20} className="mx-auto mb-2 text-green-400" />
