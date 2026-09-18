@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Database, Globe, Moon, Building, Bug, ChevronLeft, ChevronRight, Loader2, Info, X, Star, Map, AlignLeft, Flag } from 'lucide-react';
+import {
+    Database, Globe, Moon, Building, Bug, ChevronLeft, ChevronRight, Loader2, Info, X, Star, Map, AlignLeft, Flag, CloudRain, ThermometerSun, Biohazard, Radiation,
+    Coins, Cloud, Users, Crown, Hammer, Home, Activity, Factory, Zap,
+    Wheat, FlaskConical, Building2
+} from 'lucide-react';
 
 const categories = [
     { id: 'systems', label: 'Star Systems', icon: Database },
@@ -94,6 +98,312 @@ const GalacticCatalog = () => {
     const columns = categoryColumns[activeCategory]
         ? categoryColumns[activeCategory]
         : (data.length > 0 ? Object.keys(data[0]) : []);
+
+
+    // --- MODAL SUB-COMPONENTS ---
+
+    const SystemPanel = ({ record }) => (
+
+
+        <div className="space-y-1">
+
+
+            {console.log("Rendering SystemPanel with record:", record)}
+
+            <InfoSection title="SYSTEM OVERVIEW" icon={AlignLeft} defaultOpen={true}>
+                <p className="italic text-cyan-100/70 leading-relaxed">
+                    "{record.description || 'No charting data available for this sector.'}"
+                </p>
+                <div className="mt-4 pt-4 border-t border-cyan-900/50 grid grid-cols-2 gap-4">
+                    <div>
+                        <span className="block text-xs text-cyan-600 mb-1 uppercase">Controlling Faction</span>
+                        <span className="flex items-center gap-2 text-white">
+                            {record.faction_name || 'Uncharted'}
+                        </span>
+                    </div>
+                    <div>
+                        <span className="block text-xs text-cyan-600 mb-1 uppercase">Star Temperature</span>
+                        <span className="text-white">{record.temperature || 'Unknown'}</span>
+                    </div>
+                </div>
+                <div className="mt-4 pt-4 border-t border-cyan-900/50 grid grid-cols-2 gap-4">
+                    <div>
+                        <span className="block text-xs text-cyan-600 mb-1 uppercase">Governing Station Name</span>
+                        <span className="flex items-center gap-2 text-white">
+                            {record.station_name || 'Uncharted'}
+                        </span>
+                    </div>
+                    <div>
+                        <span className="block text-xs text-cyan-600 mb-1 uppercase">Station Type</span>
+                        <span className="text-white">{record.station_type || 'Unknown'}</span>
+                    </div>
+                </div>
+            </InfoSection>
+
+            <InfoSection title="IN THIS SYSTEM" icon={Globe} defaultOpen={true}>
+                <div className="grid grid-cols-3 gap-4 text-center">
+                    <div className="bg-black/50 p-3 rounded border border-cyan-900/30">
+                        <Globe size={20} className="mx-auto mb-2 text-green-400" />
+                        <div className="text-2xl font-bold text-white">{record.total_planets || 0}</div>
+                        <div className="text-[10px] text-cyan-600 uppercase mt-1">Planets</div>
+                    </div>
+                    <div className="bg-black/50 p-3 rounded border border-cyan-900/30">
+                        <Moon size={20} className="mx-auto mb-2 text-gray-400" />
+                        <div className="text-2xl font-bold text-white">{record.total_moons || 0}</div>
+                        <div className="text-[10px] text-cyan-600 uppercase mt-1">Moons</div>
+                    </div>
+                    <div className="bg-black/50 p-3 rounded border border-cyan-900/30">
+                        <Building size={20} className="mx-auto mb-2 text-blue-400" />
+                        <div className="text-2xl font-bold text-white">{record.total_settlements || 0}</div>
+                        <div className="text-[10px] text-cyan-600 uppercase mt-1">Settlements</div>
+                    </div>
+                </div>
+            </InfoSection>
+
+            <InfoSection title="RAW TELEMETRY" icon={Database}>
+                <pre className="text-cyan-400/50 font-mono text-[10px] whitespace-pre-wrap leading-relaxed">
+                    {JSON.stringify(record, null, 2)}
+                </pre>
+            </InfoSection>
+        </div>
+    );
+
+    const PlanetPanel = ({ record }) => (
+        <div className="space-y-1">
+            <InfoSection title="PLANETARY CONDITIONS" icon={Globe} defaultOpen={true}>
+                <div className="grid grid-cols-2 gap-4">
+                    <div className="flex items-start gap-3 bg-black/40 p-3 rounded border border-cyan-900/30">
+                        <CloudRain className="text-blue-400 mt-1" size={18} />
+                        <div>
+                            <span className="block text-[10px] text-cyan-600 uppercase">Weather</span>
+                            <span className="text-sm text-white">{record.weather || 'Unknown'}</span>
+                        </div>
+                    </div>
+                    <div className="flex items-start gap-3 bg-black/40 p-3 rounded border border-cyan-900/30">
+                        <ThermometerSun className="text-yellow-500 mt-1" size={18} />
+                        <div>
+                            <span className="block text-[10px] text-cyan-600 uppercase">Temperature</span>
+                            <span className="text-sm text-white">{record.temperature || 'Unknown'}</span>
+                        </div>
+                    </div>
+                    <div className="flex items-start gap-3 bg-black/40 p-3 rounded border border-cyan-900/30">
+                        <Biohazard className="text-green-500 mt-1" size={18} />
+                        <div>
+                            <span className="block text-[10px] text-cyan-600 uppercase">Toxicity</span>
+                            <span className="text-sm text-white">{record.toxicity || 'None'}</span>
+                        </div>
+                    </div>
+                    <div className="flex items-start gap-3 bg-black/40 p-3 rounded border border-cyan-900/30">
+                        <Radiation className="text-orange-500 mt-1" size={18} />
+                        <div>
+                            <span className="block text-[10px] text-cyan-600 uppercase">Radiation</span>
+                            <span className="text-sm text-white">{record.radiation || 'None'}</span>
+                        </div>
+                    </div>
+                </div>
+            </InfoSection>
+
+            <InfoSection title="SOCIETAL DATA" icon={Building} defaultOpen={true}>
+                <div className="grid grid-cols-2 gap-4">
+                    <div>
+                        <span className="block text-xs text-cyan-600 mb-1 uppercase flex items-center gap-2">
+                            <Coins size={14} /> Local Economy
+                        </span>
+                        <span className="text-white text-sm">{record.economy_name || 'Unclaimed'}</span>
+                    </div>
+                    <div>
+                        <span className="block text-xs text-cyan-600 mb-1 uppercase flex items-center gap-2">
+                            <Factory size={14} /> Primary Industry
+                        </span>
+                        <span className="text-white text-sm">{record.industry_name || 'None'}</span>
+                    </div>
+                </div>
+            </InfoSection>
+
+            <InfoSection title="ATMOSPHERE COMPOSITION" icon={Cloud} defaultOpen={true}>
+                <div className="bg-black/40 p-3 rounded border border-cyan-900/30 text-white text-sm">
+                    {record.atmosphere_makeup || 'No atmospheric data available.'}
+                </div>
+            </InfoSection>
+
+            <InfoSection title="RAW TELEMETRY" icon={Database}>
+                <pre className="text-cyan-400/50 font-mono text-[10px] whitespace-pre-wrap leading-relaxed">
+                    {JSON.stringify(record, null, 2)}
+                </pre>
+            </InfoSection>
+        </div>
+    );
+
+    const MoonPanel = ({ record }) => {
+        if (!record) return null;
+
+        return (
+            <div className="space-y-1">
+                <InfoSection title="LUNAR CLASSIFICATION" icon={Moon} defaultOpen={true}>
+                    <div className="grid grid-cols-2 gap-4 bg-black/40 p-3 rounded border border-cyan-900/30">
+                        <div>
+                            <span className="block text-xs text-cyan-600 mb-1 uppercase">Moon Type</span>
+                            <span className="text-white">{record.moon_type || 'Unknown'}</span>
+                        </div>
+                        <div>
+                            <span className="block text-xs text-cyan-600 mb-1 uppercase">Tidally Locked</span>
+                            <span className={record.is_tidally_locked ? "text-orange-400 font-bold" : "text-green-400"}>
+                                {record.is_tidally_locked ? 'YES' : 'NO'}
+                            </span>
+                        </div>
+                    </div>
+                </InfoSection>
+
+                {record.conditions && (
+                    <InfoSection title="SURFACE CONDITIONS" icon={Globe} defaultOpen={true}>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="flex items-start gap-3 bg-black/40 p-3 rounded border border-cyan-900/30">
+                                <CloudRain className="text-blue-400 mt-1" size={18} />
+                                <div>
+                                    <span className="block text-[10px] text-cyan-600 uppercase">Weather</span>
+                                    <span className="text-sm text-white">{record.conditions.weather || 'Unknown'}</span>
+                                </div>
+                            </div>
+                            <div className="flex items-start gap-3 bg-black/40 p-3 rounded border border-cyan-900/30">
+                                <ThermometerSun className="text-yellow-500 mt-1" size={18} />
+                                <div>
+                                    <span className="block text-[10px] text-cyan-600 uppercase">Temperature</span>
+                                    <span className="text-sm text-white">{record.conditions.temperature || 'Unknown'}</span>
+                                </div>
+                            </div>
+                            <div className="flex items-start gap-3 bg-black/40 p-3 rounded border border-cyan-900/30">
+                                <Biohazard className="text-green-500 mt-1" size={18} />
+                                <div>
+                                    <span className="block text-[10px] text-cyan-600 uppercase">Toxicity</span>
+                                    <span className="text-sm text-white">{record.conditions.toxicity || 'None'}</span>
+                                </div>
+                            </div>
+                            <div className="flex items-start gap-3 bg-black/40 p-3 rounded border border-cyan-900/30">
+                                <Radiation className="text-orange-500 mt-1" size={18} />
+                                <div>
+                                    <span className="block text-[10px] text-cyan-600 uppercase">Radiation</span>
+                                    <span className="text-sm text-white">{record.conditions.radiation || 'None'}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </InfoSection>
+                )}
+
+                {record.settlements_list && record.settlements_list.length > 0 && (
+                    <InfoSection title={`SETTLEMENTS (${record.settlements_list.length})`} icon={Building} defaultOpen={true}>
+                        <div className="bg-black/40 p-3 rounded border border-cyan-900/30">
+                            <ul className="list-disc list-inside text-sm text-white space-y-2">
+                                {record.settlements_list.map((settlement, index) => (
+                                    <li key={index} className="pl-1 tracking-wide">{settlement}</li>
+                                ))}
+                            </ul>
+                        </div>
+                    </InfoSection>
+                )}
+
+                <InfoSection title="RAW TELEMETRY" icon={Database}>
+                    <pre className="text-cyan-400/50 font-mono text-[10px] whitespace-pre-wrap leading-relaxed">
+                        {JSON.stringify(record, null, 2)}
+                    </pre>
+                </InfoSection>
+            </div>
+        );
+    };
+
+    const SettlementPanel = ({ record }) => {
+        if (!record) return null;
+
+        // Helper to visually categorize building types
+        const getBuildingIcon = (type) => {
+            switch (type?.toLowerCase()) {
+                case 'medical': return <Activity size={16} className="text-pink-400" />;
+                case 'residential': return <Home size={16} className="text-blue-400" />;
+                case 'industry': return <Factory size={16} className="text-orange-400" />;
+                case 'energy': return <Zap size={16} className="text-yellow-400" />;
+                case 'food': return <Wheat size={16} className="text-green-400" />;
+                case 'science': return <FlaskConical size={16} className="text-cyan-400" />;
+                default: return <Building2 size={16} className="text-gray-400" />;
+            }
+        };
+
+        const formattedPopulation = parseInt(record.population || 0).toLocaleString();
+
+        return (
+            <div className="space-y-1">
+                {/* SETTLEMENT BREADCRUMB */}
+                <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-cyan-600 mb-4 ml-1">
+                    <span className="hover:text-cyan-300 cursor-pointer transition-colors opacity-70">System</span>
+                    <ChevronRight size={10} className="opacity-50" />
+                    <span className="hover:text-cyan-300 cursor-pointer transition-colors opacity-70">Planet</span>
+                    <ChevronRight size={10} className="opacity-50" />
+                    <span className="text-cyan-400 font-bold">{record.name || 'Unknown Settlement'}</span>
+                </div>
+
+                <InfoSection title="SETTLEMENT OVERVIEW" icon={Building} defaultOpen={true}>
+                    <div className="grid grid-cols-2 gap-4">
+                        {/* Population Callout */}
+                        <div className="bg-black/50 p-4 rounded border border-cyan-900/30 flex items-center justify-between">
+                            <div>
+                                <span className="block text-[10px] text-cyan-600 uppercase tracking-widest mb-1">Total Population</span>
+                                <span className="text-2xl font-bold text-white">{formattedPopulation}</span>
+                            </div>
+                            <Users size={32} className="text-cyan-500/50" />
+                        </div>
+
+                        {/* Status Callout */}
+                        <div className="bg-black/50 p-4 rounded border border-cyan-900/30 flex flex-col justify-center">
+                            <span className="block text-[10px] text-cyan-600 uppercase tracking-widest mb-1">Designation</span>
+                            <div className="flex items-center gap-2">
+                                {record.is_capital && <Crown size={16} className="text-yellow-400" />}
+                                <span className={`text-sm font-bold tracking-wider ${record.is_capital ? 'text-yellow-400' : 'text-gray-300'}`}>
+                                    {record.is_capital ? 'PLANETARY CAPITAL' : 'PROVINCIAL COLONY'}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {record.layout && (
+                        <div className="mt-4 pt-4 border-t border-cyan-900/50 grid grid-cols-2 gap-4">
+                            <div>
+                                <span className="block text-xs text-cyan-600 mb-1 uppercase">Architectural Theme</span>
+                                <span className="text-white">{record.layout.theme || 'Standard'}</span>
+                            </div>
+                            <div>
+                                <span className="block text-xs text-cyan-600 mb-1 uppercase flex items-center gap-2">
+                                    <Hammer size={14} /> Structural Condition
+                                </span>
+                                <span className="text-white">{record.layout.condition || 'Unknown'}</span>
+                            </div>
+                        </div>
+                    )}
+                </InfoSection>
+
+                {record.layout?.buildings && record.layout.buildings.length > 0 && (
+                    <InfoSection title={`INFRASTRUCTURE (${record.layout.buildings.length})`} icon={Building2} defaultOpen={true}>
+                        <div className="grid grid-cols-2 gap-2">
+                            {record.layout.buildings.map((building, index) => (
+                                <div key={index} className="flex items-center gap-3 bg-black/40 p-2.5 rounded border border-cyan-900/30 hover:border-cyan-500/50 transition-colors">
+                                    <div className="p-1.5 bg-black/60 rounded">
+                                        {getBuildingIcon(building.type)}
+                                    </div>
+                                    <div>
+                                        <span className="block text-sm text-white font-medium">{building.name}</span>
+                                        <span className="block text-[10px] text-cyan-600 uppercase tracking-wider">{building.type}</span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </InfoSection>
+                )}
+
+                <InfoSection title="RAW TELEMETRY" icon={Database}>
+                    <pre className="text-cyan-400/50 font-mono text-[10px] whitespace-pre-wrap leading-relaxed">
+                        {JSON.stringify(record, null, 2)}
+                    </pre>
+                </InfoSection>
+            </div>
+        );
+    };
 
     return (
         <div className="flex flex-col h-screen bg-[#0a0a1a] text-green-400 font-mono">
@@ -219,11 +529,13 @@ const GalacticCatalog = () => {
 
             {/* NEW: DETAILS MODAL OVERLAY */}
             {/* UPGRADED: DETAILS MODAL OVERLAY */}
+
+
             {selectedRecord && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
                     <div className="bg-[#090914] border border-cyan-500/50 rounded-lg shadow-[0_0_40px_rgba(34,211,238,0.1)] w-full max-w-2xl max-h-[85vh] flex flex-col overflow-hidden">
 
-                        {/* Modal Header - Darker Bar with Icon */}
+                        {/* Modal Header */}
                         <div className="flex justify-between items-start p-6 bg-gradient-to-r from-cyan-950/80 to-transparent border-b border-cyan-500/30">
                             <div className="flex gap-4 items-center">
                                 <div className="p-3 bg-cyan-900/30 rounded-lg border border-cyan-500/30 text-cyan-400">
@@ -234,7 +546,7 @@ const GalacticCatalog = () => {
                                         {selectedRecord.name || selectedRecord.planetName || 'UNKNOWN RECORD'}
                                     </h2>
                                     <p className="text-xs text-cyan-500 uppercase tracking-widest mt-1 flex items-center gap-2">
-                                        <Map size={12} /> ID: {selectedRecord.id || selectedRecord.star_id}
+                                        <Map size={12} /> ID: {selectedRecord.id || selectedRecord.star_id || selectedRecord.planet_id}
                                     </p>
                                 </div>
                             </div>
@@ -246,81 +558,38 @@ const GalacticCatalog = () => {
                             </button>
                         </div>
 
-                        {/* Modal Body - Expandable Rows */}
+                        {/* Modal Body: Dynamic Component Routing */}
                         <div className="p-6 overflow-y-auto custom-scrollbar flex-1 bg-gradient-to-b from-transparent to-cyan-950/10">
-
-                            {activeCategory === 'systems' ? (
-                                <div className="space-y-1">
-                                    <InfoSection title="SYSTEM OVERVIEW" icon={AlignLeft} defaultOpen={true}>
-                                        <p className="italic text-cyan-100/70 leading-relaxed">
-                                            "{selectedRecord.description || 'No charting data available for this sector.'}"
-                                        </p>
-                                        <div className="mt-4 pt-4 border-t border-cyan-900/50 grid grid-cols-2 gap-4">
-                                            <div>
-                                                <span className="block text-xs text-cyan-600 mb-1 uppercase">Controlling Faction</span>
-                                                <span className="flex items-center gap-2 text-white">
-                                                    {selectedRecord.faction_name || 'Uncharted'}
-                                                </span>
-                                            </div>
-                                            <div>
-                                                <span className="block text-xs text-cyan-600 mb-1 uppercase">Temperature</span>
-                                                <span className="text-white">{selectedRecord.temperature || 'Unknown'}</span>
-                                            </div>
-                                        </div>
-                                        <div className="mt-4 pt-4 border-t border-cyan-900/50 grid grid-cols-2 gap-4">
-                                            <div>
-                                                <span className="block text-xs text-cyan-600 mb-1 uppercase">Station Name</span>
-                                                <span className="flex items-center gap-2 text-white">
-                                                    {selectedRecord.station_name || 'Uncharted'}
-                                                </span>
-                                            </div>
-                                            <div>
-                                                <span className="block text-xs text-cyan-600 mb-1 uppercase">Station Type</span>
-                                                <span className="text-white">{selectedRecord.station_type || 'Unknown'}</span>
-                                            </div>
-                                        </div>
-                                    </InfoSection>
-
-                                    <InfoSection title="IN THIS SYSTEM" icon={Globe} defaultOpen={true}>
-                                        <div className="grid grid-cols-3 gap-4 text-center">
-                                            <div className="bg-black/50 p-3 rounded border border-cyan-900/30">
-                                                <Globe size={20} className="mx-auto mb-2 text-green-400" />
-                                                <div className="text-2xl font-bold text-white">{selectedRecord.total_planets || 0}</div>
-                                                <div className="text-[10px] text-cyan-600 uppercase mt-1">Planets</div>
-                                            </div>
-                                            <div className="bg-black/50 p-3 rounded border border-cyan-900/30">
-                                                <Moon size={20} className="mx-auto mb-2 text-gray-400" />
-                                                <div className="text-2xl font-bold text-white">{selectedRecord.total_moons || 0}</div>
-                                                <div className="text-[10px] text-cyan-600 uppercase mt-1">Moons</div>
-                                            </div>
-                                            <div className="bg-black/50 p-3 rounded border border-cyan-900/30">
-                                                <Building size={20} className="mx-auto mb-2 text-blue-400" />
-                                                <div className="text-2xl font-bold text-white">{selectedRecord.total_settlements || 0}</div>
-                                                <div className="text-[10px] text-cyan-600 uppercase mt-1">Settlements</div>
-                                            </div>
-                                        </div>
-                                    </InfoSection>
-
-                                    <InfoSection title="RAW TELEMETRY" icon={Database}>
-                                        <pre className="text-cyan-400/50 font-mono text-[10px] whitespace-pre-wrap leading-relaxed">
-                                            {JSON.stringify(selectedRecord, null, 2)}
-                                        </pre>
-                                    </InfoSection>
-                                </div>
-                            ) : (
-                                /* Fallback for non-system categories until you style them */
-                                <InfoSection title="RAW TELEMETRY" icon={Database} defaultOpen={true}>
-                                    <pre className="text-cyan-400/80 font-mono text-xs whitespace-pre-wrap leading-relaxed">
-                                        {JSON.stringify(selectedRecord, null, 2)}
-                                    </pre>
-                                </InfoSection>
-                            )}
+                            {(() => {
+                                switch (activeCategory) {
+                                    case 'systems':
+                                        return <SystemPanel record={selectedRecord} />;
+                                    case 'planets':
+                                        return <PlanetPanel record={selectedRecord} />;
+                                    case 'moons':
+                                        return <MoonPanel record={selectedRecord} />;
+                                    case 'settlements':
+                                        return <SettlementPanel record={selectedRecord} />;
+                                    default:
+                                        // Fallback for non-styled categories
+                                        return (
+                                            <InfoSection title="RAW TELEMETRY" icon={Database} defaultOpen={true}>
+                                                <pre className="text-cyan-400/80 font-mono text-xs whitespace-pre-wrap leading-relaxed">
+                                                    {JSON.stringify(selectedRecord, null, 2)}
+                                                </pre>
+                                            </InfoSection>
+                                        );
+                                }
+                            })()}
                         </div>
+
                     </div>
                 </div>
             )}
         </div>
     );
-};
+}
+
+
 
 export default GalacticCatalog;
