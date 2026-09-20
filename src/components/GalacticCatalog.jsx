@@ -16,9 +16,9 @@ const categories = [
 
 const categoryColumns = {
     systems: ['name', 'description', 'faction_name', 'total_planets', 'total_moons', 'total_settlements'],
-    planets: ['name', 'planet_type', 'weather', 'temperature', 'toxicity', 'radiation', 'economy_name', 'industry_name', 'atmosphere_makeup'],
-    moons: ['id', 'planet_id', 'name', 'type', 'radius'],
-    settlements: ['id', 'planet_id', 'name', 'population', 'faction'],
+    planets: ['system_name', 'name', 'planet_type', 'weather', 'temperature', 'toxicity', 'radiation', 'economy_name', 'industry_name', 'atmosphere_makeup'],
+    moons: ['planet_name', 'name', 'moon_type'],
+    settlements: ['planet_name', 'name', 'population'],
     species: ['id', 'name', 'diet', 'aggression_level']
 };
 
@@ -170,6 +170,18 @@ const GalacticCatalog = () => {
 
     const PlanetPanel = ({ record }) => (
         <div className="space-y-1">
+            <InfoSection title="SYSTEM" icon={Star} defaultOpen={true}>
+                <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-black/40 p-3 rounded border border-cyan-900/30 text-white text-sm">
+                        <span className="block text-[10px] text-cyan-600 uppercase">Parent System</span>
+                        {record.system_name || 'Unknown System'}
+                    </div>
+                    <div className="bg-black/40 p-3 rounded border border-cyan-900/30 text-white text-sm">
+                        <span className="block text-[10px] text-cyan-600 uppercase">System Faction</span>
+                        {record.system_faction || 'Unknown System'}
+                    </div>
+                </div>
+            </InfoSection>
             <InfoSection title="PLANETARY CONDITIONS" icon={Globe} defaultOpen={true}>
                 <div className="grid grid-cols-2 gap-4">
                     <div className="flex items-start gap-3 bg-black/40 p-3 rounded border border-cyan-900/30">
@@ -332,11 +344,18 @@ const GalacticCatalog = () => {
             <div className="space-y-1">
                 {/* SETTLEMENT BREADCRUMB */}
                 <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-cyan-600 mb-4 ml-1">
-                    <span className="hover:text-cyan-300 cursor-pointer transition-colors opacity-70">System</span>
+
+                    {record.system_name || 'Unknown System'}
+
+                    {/* <span className="hover:text-cyan-300 cursor-pointer transition-colors opacity-70"> */}
                     <ChevronRight size={10} className="opacity-50" />
-                    <span className="hover:text-cyan-300 cursor-pointer transition-colors opacity-70">Planet</span>
+                    {record.planet_name || 'Unknown Planet'}
+                    {/* </span> */}
+
                     <ChevronRight size={10} className="opacity-50" />
-                    <span className="text-cyan-400 font-bold">{record.name || 'Unknown Settlement'}</span>
+                    <span className="text-cyan-400 font-bold">
+                        {record.name || 'Unknown Settlement'}
+                    </span>
                 </div>
 
                 <InfoSection title="SETTLEMENT OVERVIEW" icon={Building} defaultOpen={true}>
